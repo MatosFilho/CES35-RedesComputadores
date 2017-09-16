@@ -33,12 +33,13 @@ public class Cliente extends JFrame{
 		public void run() {
 			boolean conexaoServidor = false;
 			try {
-				String texto;
-				while(( texto = leitor.nextLine()) != null ) {  //Estabelece a conexão com o servidor
+				String texto ="";
+				while(true) {  //Estabelece a conexï¿½o com o servidor
 					if (!conexaoServidor) {						//Espera por resposta do servidor
 						escritor.println("Posso conectar?");
-						System.out.println("Chegou aqui");
+						escritor.flush();
 						textoRecebido.append("Cliente: Posso conectar?\n");
+						texto = leitor.nextLine();
 						for(int k = 0; k < 1000000; k++) {
 							if(texto.equals("Pode conectar!")) {
 								conexaoServidor = true;
@@ -49,13 +50,14 @@ public class Cliente extends JFrame{
 					} else {   									//Quando servidor responde
 						textoRecebido.append("Servidor: "+texto + "\n");
 						escritor.println("Envia tabela!");
+						escritor.flush();
 						textoRecebido.append("Cliente: Envia tabela!\n");
 						break;
 					}
 				}
-				
-				while(( texto = leitor.nextLine()) != null ) { //Recebe lista de músicas
+				while(true) { //Recebe lista de mï¿½sicas
 					textoRecebido.append(texto + "\n");
+					texto = leitor.nextLine();
 				}
 			} catch (Exception e) {}
 		}
@@ -103,7 +105,8 @@ public class Cliente extends JFrame{
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			escritor.println(nome + ": " +textoEnviado.getText());
+			textoRecebido.append(nome + ": " +textoEnviado.getText()+"\n");
+			escritor.println(textoEnviado.getText());
 			escritor.flush();
 			textoEnviado.setText("");
 			textoEnviado.requestFocus();

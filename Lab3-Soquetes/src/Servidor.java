@@ -27,11 +27,13 @@ public class Servidor {
 	private void criarServidor() {
 		try {
 			servidor = new ServerSocket(5000);
-		} catch (Exception e) {}
+		} catch (Exception e) {
+			System.out.println("NÃ£o foi possÃ­vel criar Servidor nessa porta.");
+		}
 	}
 	
 	/**  
-	 * Método que fica escutando as requisições de clientes  
+	 * Metodo que fica escutando as requisicoes de clientes  
 	 */
 	private void escutarClientes() {
 		Scanner leitorDeAcesso;
@@ -40,9 +42,10 @@ public class Servidor {
 				boolean conexaoCliente = false;
 				Socket socket = servidor.accept();
 				leitorDeAcesso = new Scanner(socket.getInputStream());
+				System.out.println("Servidor conectado com cliente e esperando mensagem.");
 				String mensagem = leitorDeAcesso.nextLine();
-				
-				/* Servidor espera mensagem de conexão */
+				System.out.println("Cliente: "+mensagem);
+				/* Servidor espera mensagem de conexao */
 				for(int k = 0; k < 1000000; k++) {
 					if(mensagem.equals("Posso conectar?")) {
 						conexaoCliente = true;
@@ -55,8 +58,9 @@ public class Servidor {
 					boolean confirmaConexao = false;
 					PrintWriter p = new PrintWriter(socket.getOutputStream());
 					p.println("Pode conectar!");
-					
-					/* Servidor espera a mensagem de confirmação*/
+					p.flush();
+					System.out.println("Servidor: Pode conectar!");
+					/* Servidor espera a mensagem de confirmacao*/
 					mensagem = leitorDeAcesso.nextLine();
 					for(int k = 0; k < 1000000; k++) {
 						if(mensagem.equals("Envia tabela!")) {
@@ -65,8 +69,7 @@ public class Servidor {
 						}
 						mensagem = leitorDeAcesso.nextLine();
 					}
-					
-					/* Recebida a mensagem de confirmação, o servidor cria uma 
+					/* Recebida a mensagem de confirmacao, o servidor cria uma 
 					   thread para conversar com o cliente */
 					if(confirmaConexao)
 						new Thread(new RecebeDoCliente(socket)).start();
@@ -92,15 +95,20 @@ public class Servidor {
 			int cont = 1;
 			for(Musica m : listaDeMusicas ) {
 				escritor.println(cont + ". " + m.getMusica());
+				escritor.flush();
 				cont++;
 			}
 		}
 		
 		public void enviarMusica(int indice) {
-			escritor.println(listaDeMusicas.get(indice-1).getMusica());
-			escritor.println(listaDeMusicas.get(indice-1).getAutor());
-			escritor.println(listaDeMusicas.get(indice-1).getAnoLancamento());
-			escritor.println(listaDeMusicas.get(indice-1).getTamanho());
+			escritor.println("Nome: "+listaDeMusicas.get(indice-1).getMusica());
+			escritor.flush();
+			escritor.println("Autor: "+listaDeMusicas.get(indice-1).getAutor());
+			escritor.flush();
+			escritor.println("Ano de Lancamento: "+listaDeMusicas.get(indice-1).getAnoLancamento());
+			escritor.flush();
+			escritor.println("Tamanho: "+listaDeMusicas.get(indice-1).getTamanho());
+			escritor.flush();
 		}
 		
 		@Override
