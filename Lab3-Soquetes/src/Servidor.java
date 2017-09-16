@@ -27,9 +27,7 @@ public class Servidor {
 	private void criarServidor() {
 		try {
 			servidor = new ServerSocket(5000);
-		} catch (Exception e) {
-			System.out.println("Não foi possível criar Servidor nessa porta.");
-		}
+		} catch (Exception e) {}
 	}
 	
 	/**  
@@ -42,9 +40,7 @@ public class Servidor {
 				boolean conexaoCliente = false;
 				Socket socket = servidor.accept();
 				leitorDeAcesso = new Scanner(socket.getInputStream());
-				System.out.println("Servidor conectado com cliente e esperando mensagem.");
 				String mensagem = leitorDeAcesso.nextLine();
-				System.out.println("Cliente: "+mensagem);
 				/* Servidor espera mensagem de conexao */
 				for(int k = 0; k < 1000000; k++) {
 					if(mensagem.equals("Posso conectar?")) {
@@ -59,7 +55,6 @@ public class Servidor {
 					PrintWriter p = new PrintWriter(socket.getOutputStream());
 					p.println("Pode conectar!");
 					p.flush();
-					System.out.println("Servidor: Pode conectar!");
 					/* Servidor espera a mensagem de confirmacao*/
 					mensagem = leitorDeAcesso.nextLine();
 					for(int k = 0; k < 1000000; k++) {
@@ -93,21 +88,33 @@ public class Servidor {
 		
 		private void enviarTabela() {
 			int cont = 1;
+			escritor.println("\nLista de m�sicas:\n");
+			escritor.flush();
 			for(Musica m : listaDeMusicas ) {
 				escritor.println(cont + ". " + m.getMusica());
 				escritor.flush();
 				cont++;
 			}
+			escritor.println("\nEscolha a musica a partir do numero\n");
+			escritor.flush();
 		}
 		
 		public void enviarMusica(int indice) {
+			escritor.println("\nEnviando...\n");
+			escritor.flush();
+			
+			/* Simulando tempo de envio */
+			try {
+				Thread.sleep((long) Integer.parseInt(listaDeMusicas.get(indice-1).getTamanho()));
+			} catch (InterruptedException e) {System.out.println("Erro!");}
+			
 			escritor.println("Nome: "+listaDeMusicas.get(indice-1).getMusica());
 			escritor.flush();
 			escritor.println("Autor: "+listaDeMusicas.get(indice-1).getAutor());
 			escritor.flush();
 			escritor.println("Ano de Lancamento: "+listaDeMusicas.get(indice-1).getAnoLancamento());
 			escritor.flush();
-			escritor.println("Tamanho: "+listaDeMusicas.get(indice-1).getTamanho());
+			escritor.println("Tamanho: "+listaDeMusicas.get(indice-1).getTamanho()+"KB");
 			escritor.flush();
 		}
 		

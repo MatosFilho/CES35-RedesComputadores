@@ -10,7 +10,7 @@ public class Musica {
 		this.musica = nome;
 		this.autor = autor;
 		this.anoLancamento = data;
-		this.tamanho = tamanho + "KB";
+		this.tamanho = tamanho;
 	}
     
 	public String getMusica() { return musica; }

@@ -38,7 +38,7 @@ public class Cliente extends JFrame{
 					if (!conexaoServidor) {						//Espera por resposta do servidor
 						escritor.println("Posso conectar?");
 						escritor.flush();
-						textoRecebido.append("Cliente: Posso conectar?\n");
+						textoRecebido.append("Cliente   : Posso conectar?\n");
 						texto = leitor.nextLine();
 						for(int k = 0; k < 1000000; k++) {
 							if(texto.equals("Pode conectar!")) {
@@ -48,16 +48,16 @@ public class Cliente extends JFrame{
 							texto = leitor.nextLine();
 						}
 					} else {   									//Quando servidor responde
-						textoRecebido.append("Servidor: "+texto + "\n");
+						textoRecebido.append("Servidor : "+texto + "\n");
 						escritor.println("Envia tabela!");
 						escritor.flush();
-						textoRecebido.append("Cliente: Envia tabela!\n");
+						textoRecebido.append("Cliente   : Envia tabela!\n");
 						break;
 					}
 				}
-				while(true) { //Recebe lista de m�sicas
-					textoRecebido.append(texto + "\n");
+				while(true) { //Recebe lista de musicas
 					texto = leitor.nextLine();
+					textoRecebido.append(texto + "\n");
 				}
 			} catch (Exception e) {}
 		}
@@ -65,7 +65,7 @@ public class Cliente extends JFrame{
 	}
 	
 	public Cliente (String nome) {
-		super ("Chat: " + nome);
+		super ("Cliente: " + nome);
 		this.nome = nome;
 		
 		Font fonte = new Font("Serif", Font.PLAIN, 26);
