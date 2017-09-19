@@ -5,6 +5,12 @@ import java.awt.Container;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Scanner;
@@ -16,6 +22,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+
 public class Cliente extends JFrame{
 	
 	String nome;
@@ -24,6 +31,7 @@ public class Cliente extends JFrame{
 	JTextArea textoRecebido;
 	PrintWriter escritor;
 	Scanner leitor;
+	String path = System.getProperty("user.dir") + "/downloads/";
 	
 	/*  Thread que monitora o InputStream que vem do servidor 
 	    e captura as mensagens para jogar na tela  */
@@ -59,7 +67,7 @@ public class Cliente extends JFrame{
 				boolean tabela = false;
 				while(!tabela) {
 					for (int l = 0; l < 1000000; l++) {
-						if ((texto = leitor.nextLine()).equals("\nLista de músicas:\n")) {
+						if ((texto = leitor.nextLine()).equals("\nLista de mï¿½sicas:\n")) {
 							tabela = true;
 							break;
 						}
@@ -73,8 +81,73 @@ public class Cliente extends JFrame{
 					texto = leitor.nextLine();
 					textoRecebido.append(texto + "\n");
 					//texto = leitor.nextLine();
+					if(texto.equals("Enviando...")) {
+						recebeMusica();
+					}
 				}
 			} catch (Exception e) {}
+		}
+
+		private void recebeMusica() {
+			System.out.println("ComeÃ§ou a receber!!!");
+			int bytesRead;
+		    int current = 0;
+		    FileOutputStream fos = null;
+		    BufferedOutputStream bos = null;
+		    Socket sock = null;
+		    int FILE_SIZE = Integer.parseInt(leitor.nextLine()); 
+			byte [] mybytearray  = new byte [FILE_SIZE];
+		    InputStream is;
+			try {
+				is = socketCliente.getInputStream();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return;
+			}
+		    String FILE_TO_RECEIVED = leitor.nextLine();
+		    File arquivo = new File(path+FILE_TO_RECEIVED);
+		    System.out.println("Criando um arquivo em: "+path+FILE_TO_RECEIVED);
+		    try {
+				arquivo.createNewFile();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		    try {
+				fos = new FileOutputStream(path+FILE_TO_RECEIVED);
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		    bos = new BufferedOutputStream(fos);
+		    try {
+				bytesRead = is.read(mybytearray,0,mybytearray.length);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return;
+			}
+		    current = bytesRead;
+		    do {
+		    	try {
+					bytesRead = is.read(mybytearray, current, (mybytearray.length-current));
+					System.out.println("To preso aqui dentro! "+bytesRead);
+		    	} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+		        if(bytesRead > 0) current += bytesRead;
+		    } while(bytesRead > 0);
+		    try {
+				bos.write(mybytearray, 0 , current);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		    
+		    textoRecebido.append("File " + FILE_TO_RECEIVED
+			          + " downloaded (" + current + " bytes read)" + "\n");
 		}
 		
 	}
