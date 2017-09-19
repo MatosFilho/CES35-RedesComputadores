@@ -1,5 +1,12 @@
 
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -11,17 +18,22 @@ import java.util.Set;
 public class Servidor {
 	
 	ServerSocket servidor;
-	ArrayList<Musica> listaDeMusicas;
+	ArrayList<String> listaDeMusicas;
+	String path = System.getProperty("user.dir") + "/musicas/";
 	
 	public Servidor() {
-		listaDeMusicas = new ArrayList<Musica>();
+		listaDeMusicas = new ArrayList<String>();
 		criarLista();
 		criarServidor();
 		escutarClientes();
 	}
 	
 	public void criarLista() {
-		listaDeMusicas.add(new Musica("Atirei o Pau no Gato", "Zina Baby", "2017", "2432"));
+		File folder = new File(path);
+		File[] listOfFiles = folder.listFiles();
+	    for (int i = 0; i < listOfFiles.length; i++) {
+	    	listaDeMusicas.add(listOfFiles[i].getName());
+	    }
 	}
 	
 	private void criarServidor() {
@@ -78,22 +90,24 @@ public class Servidor {
 
 		Scanner leitor;
 		PrintWriter escritor;
+		OutputStream out;
 		
 		public RecebeDoCliente(Socket socket) {
 			try {
 			leitor = new Scanner(socket.getInputStream());
 			escritor = new PrintWriter(socket.getOutputStream());
+			out = socket.getOutputStream();
 			} catch(Exception e) {}
 		}
 		
 		private void enviarTabela() {
 			int cont = 1;
-			escritor.println("\nLista de músicas:\n");
+			escritor.println("\nLista de musicas:\n");
 			escritor.flush();
-			escritor.println("0. Encerra conexão");
+			escritor.println("0. Encerra conexao");
 			escritor.flush();
-			for(Musica m : listaDeMusicas ) {
-				escritor.println(cont + ". " + m.getMusica());
+			for(String m : listaDeMusicas ) {
+				escritor.println(cont + ". " + m);
 				escritor.flush();
 				cont++;
 			}
@@ -102,21 +116,48 @@ public class Servidor {
 		}
 		
 		public void enviarMusica(int indice) {
-			escritor.println("\nEnviando...\n");
+			escritor.println("Enviando...");
 			escritor.flush();
 			
-			/* Simulando tempo de envio */
+//			/* Simulando tempo de envio */
+//			try {
+//				Thread.sleep((long) Integer.parseInt(listaDeMusicas.get(indice-1).getTamanho()));
+//			} catch (InterruptedException e) {System.out.println("Erro!");}
+			File file = new File(path+listaDeMusicas.get(indice-1));
+			escritor.println((int)file.length());
+			escritor.flush();
+			escritor.println(listaDeMusicas.get(indice-1));
+			escritor.flush();
+			byte [] mybytearray  = new byte [(int)file.length()];
+	        FileInputStream fis;
 			try {
-				Thread.sleep((long) Integer.parseInt(listaDeMusicas.get(indice-1).getTamanho()));
-			} catch (InterruptedException e) {System.out.println("Erro!");}
-			
-			escritor.println("Nome: "+listaDeMusicas.get(indice-1).getMusica());
-			escritor.flush();
-			escritor.println("Autor: "+listaDeMusicas.get(indice-1).getAutor());
-			escritor.flush();
-			escritor.println("Ano de Lancamento: "+listaDeMusicas.get(indice-1).getAnoLancamento());
-			escritor.flush();
-			escritor.println("Tamanho: "+listaDeMusicas.get(indice-1).getTamanho()+"KB");
+				fis = new FileInputStream(file);
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return;
+			}
+	        BufferedInputStream bis = new BufferedInputStream(fis);
+	        try {
+				bis.read(mybytearray,0,mybytearray.length);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	        try {
+				out.write(mybytearray,0,mybytearray.length);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	        try {
+				out.flush();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	        System.out.println("Done.");
+			escritor.println("Enviado");
 			escritor.flush();
 		}
 		
@@ -128,7 +169,7 @@ public class Servidor {
 				while(( texto = leitor.nextLine() ) != null) {
 					int numMusica = Integer.parseInt(texto);
 					if (( numMusica < 1 ) || ( numMusica > listaDeMusicas.size() )) {
-						escritor.println("Número de música inválido.\nConsulte a tabela novamente.");
+						escritor.println("Numero de musica invalido.\nConsulte a tabela novamente.");
 						escritor.flush();
 					}
 					else
