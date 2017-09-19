@@ -34,7 +34,7 @@ public class Cliente extends JFrame{
 			boolean conexaoServidor = false;
 			try {
 				String texto ="";
-				while(true) {  //Estabelece a conexï¿½o com o servidor
+				while(true) {  //Estabelece a conexao com o servidor
 					if (!conexaoServidor) {						//Espera por resposta do servidor
 						escritor.println("Posso conectar?");
 						escritor.flush();
@@ -45,7 +45,7 @@ public class Cliente extends JFrame{
 								conexaoServidor = true;
 								break;
 							}
-							texto = leitor.nextLine();
+							texto = leitor.nextLine();  // <--
 						}
 					} else {   									//Quando servidor responde
 						textoRecebido.append("Servidor : "+texto + "\n");
@@ -55,6 +55,17 @@ public class Cliente extends JFrame{
 						break;
 					}
 				}
+				/*
+				boolean tabela = false;
+				while(!tabela) {
+					for (int l = 0; l < 1000000; l++) {
+						if ((texto = leitor.nextLine()).equals("\nLista de músicas:\n")) {
+							tabela = true;
+							break;
+						}
+					}
+				}
+				*/
 				while(true) { //Recebe lista de musicas
 					texto = leitor.nextLine();
 					textoRecebido.append(texto + "\n");
@@ -116,6 +127,8 @@ public class Cliente extends JFrame{
 	
 	public static void main(String[] args) {
 		new Cliente("Zina");
+		//new Cliente("Matos");
+		//new Cliente("Panda");
 	}
 
 }

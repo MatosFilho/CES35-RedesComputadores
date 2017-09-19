@@ -90,6 +90,8 @@ public class Servidor {
 			int cont = 1;
 			escritor.println("\nLista de músicas:\n");
 			escritor.flush();
+			escritor.println("0. Encerra conexão");
+			escritor.flush();
 			for(Musica m : listaDeMusicas ) {
 				escritor.println(cont + ". " + m.getMusica());
 				escritor.flush();
@@ -124,7 +126,13 @@ public class Servidor {
 				enviarTabela();									//Envio da tabela
 				String texto;
 				while(( texto = leitor.nextLine() ) != null) {
-					enviarMusica(Integer.parseInt(texto));
+					int numMusica = Integer.parseInt(texto);
+					if (( numMusica < 1 ) || ( numMusica > listaDeMusicas.size() )) {
+						escritor.println("Número de música inválido.\nConsulte a tabela novamente.");
+						escritor.flush();
+					}
+					else
+						enviarMusica(numMusica);
 				}
 			} catch (Exception e) {}
 		}
