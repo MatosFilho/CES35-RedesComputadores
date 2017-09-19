@@ -126,6 +126,12 @@ public class Servidor {
 				enviarTabela();									//Envio da tabela
 				String texto;
 				while(( texto = leitor.nextLine() ) != null) {
+					/*
+					if(texto.equals("Envia Tabela!"))
+						enviarTabela();
+					else {}
+					*/
+					
 					int numMusica = Integer.parseInt(texto);
 					if (( numMusica < 1 ) || ( numMusica > listaDeMusicas.size() )) {
 						escritor.println("Número de música inválido.\nConsulte a tabela novamente.");

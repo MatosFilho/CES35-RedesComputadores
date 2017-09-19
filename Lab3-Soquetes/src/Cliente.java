@@ -64,11 +64,15 @@ public class Cliente extends JFrame{
 							break;
 						}
 					}
+					escritor.println("Envia tabela!");
+					escritor.flush();
+					textoRecebido.append("Cliente   : Envia tabela!\n");
 				}
 				*/
 				while(true) { //Recebe lista de musicas
 					texto = leitor.nextLine();
 					textoRecebido.append(texto + "\n");
+					//texto = leitor.nextLine();
 				}
 			} catch (Exception e) {}
 		}
