@@ -44,12 +44,11 @@ public class Cliente extends JFrame{
 				String texto ="";
 				while(true) {  //Estabelece a conexao com o servidor
 					if (!conexaoServidor) {						//Espera por resposta do servidor
-						escritor.println("Posso conectar?");
+						escritor.println(nome);
 						escritor.flush();
-						textoRecebido.append("Cliente   : Posso conectar?\n");
 						texto = leitor.nextLine();
 						for(int k = 0; k < 1000000; k++) {
-							if(texto.equals("Pode conectar!")) {
+							if(texto.equals("Cliente conectado!")) {
 								conexaoServidor = true;
 								break;
 							}

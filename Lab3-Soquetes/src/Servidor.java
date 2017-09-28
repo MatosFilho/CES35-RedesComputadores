@@ -22,16 +22,15 @@ public class Servidor {
 	String path = System.getProperty("user.dir") + "/musicas/";
 	
 	public Servidor() {
-		listaDeMusicas = new ArrayList<String>();
-		criarLista();
 		criarServidor();
 		escutarClientes();
 	}
 	
-	public void criarLista() {
-		File folder = new File(path);
+	public void criarLista(String nomeCliente) {
+		File folder = new File(path+"/"+nomeCliente+"/");
 		File[] listOfFiles = folder.listFiles();
-	    for (int i = 0; i < listOfFiles.length; i++) {
+		listaDeMusicas = new ArrayList<String>();
+		for (int i = 0; i < listOfFiles.length; i++) {
 	    	listaDeMusicas.add(listOfFiles[i].getName());
 	    }
 	}
@@ -47,25 +46,34 @@ public class Servidor {
 	 */
 	private void escutarClientes() {
 		Scanner leitorDeAcesso;
+		String nomeCliente = "";
 		try {
 			while (true) {
 				boolean conexaoCliente = false;
 				Socket socket = servidor.accept();
 				leitorDeAcesso = new Scanner(socket.getInputStream());
 				String mensagem = leitorDeAcesso.nextLine();
+				File folder = new File(path);
+				File[] listOfFolders = folder.listFiles();
+				
 				/* Servidor espera mensagem de conexao */
 				for(int k = 0; k < 1000000; k++) {
-					if(mensagem.equals("Posso conectar?")) {
-						conexaoCliente = true;
-						break;
+					for(int i=0; i<listOfFolders.length;i++) {
+						if(mensagem.equals(listOfFolders[i].getName())) {
+							nomeCliente = listOfFolders[i].getName();
+							conexaoCliente = true;
+							break;
+						}
 					}
+					if(conexaoCliente)
+						break;
 					mensagem = leitorDeAcesso.nextLine();
 				}
 				
 				if (conexaoCliente) {
 					boolean confirmaConexao = false;
 					PrintWriter p = new PrintWriter(socket.getOutputStream());
-					p.println("Pode conectar!");
+					p.println("Cliente conectado!");
 					p.flush();
 					/* Servidor espera a mensagem de confirmacao*/
 					mensagem = leitorDeAcesso.nextLine();
@@ -78,8 +86,10 @@ public class Servidor {
 					}
 					/* Recebida a mensagem de confirmacao, o servidor cria uma 
 					   thread para conversar com o cliente */
-					if(confirmaConexao)
-						new Thread(new RecebeDoCliente(socket)).start();
+					if(confirmaConexao) {
+						criarLista(nomeCliente);
+						new Thread(new RecebeDoCliente(socket,nomeCliente, listaDeMusicas)).start();
+					}
 				}
 			}
 		} catch (Exception e){}
@@ -91,12 +101,15 @@ public class Servidor {
 		Scanner leitor;
 		PrintWriter escritor;
 		OutputStream out;
-		
-		public RecebeDoCliente(Socket socket) {
+		String nomeCliente;
+		ArrayList<String> listaDeMusicasFixa;
+		public RecebeDoCliente(Socket socket, String n, ArrayList<String> l) {
 			try {
-			leitor = new Scanner(socket.getInputStream());
-			escritor = new PrintWriter(socket.getOutputStream());
-			out = socket.getOutputStream();
+				listaDeMusicasFixa =l;
+				leitor = new Scanner(socket.getInputStream());
+				escritor = new PrintWriter(socket.getOutputStream());
+				out = socket.getOutputStream();
+				nomeCliente = n;
 			} catch(Exception e) {}
 		}
 		
@@ -106,7 +119,7 @@ public class Servidor {
 			escritor.flush();
 			escritor.println("0. Encerra conexao");
 			escritor.flush();
-			for(String m : listaDeMusicas ) {
+			for(String m : listaDeMusicasFixa ) {
 				escritor.println(cont + ". " + m);
 				escritor.flush();
 				cont++;
@@ -123,10 +136,10 @@ public class Servidor {
 //			try {
 //				Thread.sleep((long) Integer.parseInt(listaDeMusicas.get(indice-1).getTamanho()));
 //			} catch (InterruptedException e) {System.out.println("Erro!");}
-			File file = new File(path+listaDeMusicas.get(indice-1));
+			File file = new File(path+"/"+nomeCliente+"/"+listaDeMusicasFixa.get(indice-1));
 			escritor.println((int)file.length());
 			escritor.flush();
-			escritor.println(listaDeMusicas.get(indice-1));
+			escritor.println(listaDeMusicasFixa.get(indice-1));
 			escritor.flush();
 			byte [] mybytearray  = new byte [(int)file.length()];
 	        FileInputStream fis;
